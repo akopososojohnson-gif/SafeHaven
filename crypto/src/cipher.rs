@@ -144,6 +144,12 @@ pub fn decrypt_bytes(
     decrypt(key, &ct, aad)
 }
 
+/// Fill a buffer with random bytes from the CSPRNG.
+pub fn fill_random(buf: &mut [u8]) {
+    use rand::RngCore;
+    rand::thread_rng().fill_bytes(buf);
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -15,6 +15,9 @@ pub mod memory;
 pub mod share;
 pub mod zkp;
 
+#[cfg(feature = "wasm")]
+pub mod wasm;
+
 use thiserror::Error;
 
 /// Unified error type for all crypto operations.
