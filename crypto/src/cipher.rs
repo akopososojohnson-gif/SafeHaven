@@ -150,6 +150,13 @@ pub fn fill_random(buf: &mut [u8]) {
     rand::thread_rng().fill_bytes(buf);
 }
 
+/// Generate a Vec of random bytes.
+pub fn random_bytes(len: usize) -> Vec<u8> {
+    let mut buf = vec![0u8; len];
+    fill_random(&mut buf);
+    buf
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
