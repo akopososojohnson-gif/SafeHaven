@@ -11,6 +11,8 @@ import (
 
 	"github.com/akopososojohnson-gif/safehaven/api/config"
 	"github.com/akopososojohnson-gif/safehaven/api/db"
+	"github.com/akopososojohnson-gif/safehaven/api/handlers"
+	shmw "github.com/akopososojohnson-gif/safehaven/api/middleware"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 )
@@ -38,11 +40,26 @@ func main() {
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.Timeout(60 * time.Second))
+	r.Use(shmw.SecurityHeaders)
 
+	// Health check (unauthenticated)
 	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte(`{"status":"ok"}`))
+	})
+
+	// Rate limiter
+	rateLimiter := shmw.NewRateLimiter(database.Redis)
+
+	// Auth routes
+	authHandler := &handlers.AuthHandler{DB: database, Config: cfg}
+	r.Route("/api/v1/auth", func(r chi.Router) {
+		r.Post("/register", authHandler.Register)
+		r.With(rateLimiter.Limit(5, time.Minute)).Post("/challenge", authHandler.Challenge)
+		r.Post("/verify", authHandler.Verify)
+		r.Post("/refresh", authHandler.Refresh)
+		r.With(shmw.JWTAuth([]byte(cfg.Auth.JWTSigningKey))).Post("/logout", authHandler.Logout)
 	})
 
 	srv := &http.Server{
