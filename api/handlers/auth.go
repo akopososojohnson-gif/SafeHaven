@@ -86,7 +86,7 @@ func (h *AuthHandler) Routes(r chi.Router) {
 // Register creates a new user.
 func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	var req RegisterRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+	if err := middleware.StrictJSONDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, `{"error":"invalid request"}`, http.StatusBadRequest)
 		return
 	}
@@ -140,7 +140,7 @@ func (h *AuthHandler) Challenge(w http.ResponseWriter, r *http.Request) {
 	var req struct {
 		Email string `json:"email"`
 	}
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.Email == "" {
+	if err := middleware.StrictJSONDecoder(r.Body).Decode(&req); err != nil || req.Email == "" {
 		http.Error(w, `{"error":"invalid request"}`, http.StatusBadRequest)
 		return
 	}
@@ -179,7 +179,7 @@ func (h *AuthHandler) Challenge(w http.ResponseWriter, r *http.Request) {
 // Verify checks a ZKP proof and issues tokens.
 func (h *AuthHandler) Verify(w http.ResponseWriter, r *http.Request) {
 	var req VerifyRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+	if err := middleware.StrictJSONDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, `{"error":"invalid request"}`, http.StatusBadRequest)
 		return
 	}

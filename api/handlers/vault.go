@@ -142,7 +142,7 @@ func (h *VaultHandler) CreateItem(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var req VaultItemRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+	if err := middleware.StrictJSONDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, `{"error":"invalid request"}`, http.StatusBadRequest)
 		return
 	}
@@ -218,7 +218,7 @@ func (h *VaultHandler) UpdateItem(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var req VaultItemRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+	if err := middleware.StrictJSONDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, `{"error":"invalid request"}`, http.StatusBadRequest)
 		return
 	}

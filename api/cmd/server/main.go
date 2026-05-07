@@ -37,10 +37,11 @@ func main() {
 	r := chi.NewRouter()
 	r.Use(middleware.RequestID)
 	r.Use(middleware.RealIP)
-	r.Use(middleware.Logger)
+	r.Use(shmw.StructuredLogger)
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.Timeout(60 * time.Second))
 	r.Use(shmw.SecurityHeaders)
+	r.Use(shmw.MaxBodySize(1 << 20)) // 1 MB max body size
 
 	// Health check (unauthenticated)
 	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
@@ -86,6 +87,13 @@ func main() {
 	r.Route("/api/v1/hibp", func(r chi.Router) {
 		r.Use(shmw.JWTAuth([]byte(cfg.Auth.JWTSigningKey)))
 		r.Get("/check", hibpHandler.Check)
+	})
+
+	// User routes (authenticated)
+	userHandler := &handlers.UserHandler{DB: database}
+	r.Route("/api/v1/user", func(r chi.Router) {
+		r.Use(shmw.JWTAuth([]byte(cfg.Auth.JWTSigningKey)))
+		userHandler.Routes(r)
 	})
 
 	srv := &http.Server{

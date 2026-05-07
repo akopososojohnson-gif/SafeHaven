@@ -80,7 +80,7 @@ func (h *ShareHandler) CreateShare(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var req CreateShareRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+	if err := middleware.StrictJSONDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, `{"error":"invalid request"}`, http.StatusBadRequest)
 		return
 	}
