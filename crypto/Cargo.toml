@@ -1,0 +1,35 @@
+[package]
+name = "safehaven-crypto"
+version = "0.1.0"
+edition = "2021"
+authors = ["SafeHaven Team"]
+license = "AGPL-3.0"
+description = "SafeHaven cryptographic core: Argon2id, AES-256-GCM, Schnorr ZKP, secure memory"
+repository = "https://github.com/safehaven/safehaven"
+
+[dependencies]
+argon2 = { version = "0.5", features = ["alloc"] }
+aes-gcm = "0.10"
+hkdf = "0.12"
+sha2 = "0.10"
+hmac = "0.12"
+zeroize = { version = "1.7", features = ["derive"] }
+libc = "0.2"
+curve25519-dalek = { version = "4.1", features = ["rand_core"] }
+rand = "0.8"
+thiserror = "1.0"
+serde = { version = "1.0", features = ["derive"], optional = true }
+
+[dev-dependencies]
+hex = "0.4"
+serde_json = "1.0"
+
+[features]
+default = []
+serde = ["dep:serde"]
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true
