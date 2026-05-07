@@ -1,26 +1,23 @@
-# Rust
-/target
-Cargo.lock
-**/*.rs.bk
-
-# Node
+/crypto/target/
+/api/server
+*.exe
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+vendor/
 node_modules/
 dist/
 build/
 *.log
-
-# IDEs
 .idea/
 .vscode/
 *.swp
 *.swo
-
-# OS
 .DS_Store
 Thumbs.db
-
-# Secrets (never commit)
 *.env
 *.key
 *.pem
-/crypto/target/
+
