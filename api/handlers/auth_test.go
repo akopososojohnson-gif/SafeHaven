@@ -19,7 +19,11 @@ import (
 
 func setupTestAuthHandler(t *testing.T) (*AuthHandler, *chi.Mux) {
 	os.Setenv("JWT_SIGNING_KEY", "test-signing-key-32-bytes-long!!!")
-	t.Cleanup(func() { os.Unsetenv("JWT_SIGNING_KEY") })
+	os.Setenv("SHARE_SERVER_SECRET", "test-share-secret-32-bytes-long!!")
+	t.Cleanup(func() {
+		os.Unsetenv("JWT_SIGNING_KEY")
+		os.Unsetenv("SHARE_SERVER_SECRET")
+	})
 
 	cfg, err := config.Load()
 	if err != nil {

@@ -62,6 +62,32 @@ func main() {
 		r.With(shmw.JWTAuth([]byte(cfg.Auth.JWTSigningKey))).Post("/logout", authHandler.Logout)
 	})
 
+	// Vault routes (authenticated)
+	vaultHandler := &handlers.VaultHandler{DB: database}
+	r.Route("/api/v1/vault", func(r chi.Router) {
+		r.Use(shmw.JWTAuth([]byte(cfg.Auth.JWTSigningKey)))
+		vaultHandler.Routes(r)
+	})
+
+	// Share routes (create/list authenticated, redeem unauthenticated)
+	shareHandler := &handlers.ShareHandler{DB: database, Config: cfg}
+	r.Route("/api/v1/shares", func(r chi.Router) {
+		r.Get("/{share_id}", shareHandler.RedeemShare)
+	})
+	r.Route("/api/v1/shares", func(r chi.Router) {
+		r.Use(shmw.JWTAuth([]byte(cfg.Auth.JWTSigningKey)))
+		r.Post("/", shareHandler.CreateShare)
+		r.Delete("/{share_id}", shareHandler.RevokeShare)
+		r.Get("/", shareHandler.ListShares)
+	})
+
+	// HIBP routes (authenticated)
+	hibpHandler := handlers.NewHIBPHandler(database)
+	r.Route("/api/v1/hibp", func(r chi.Router) {
+		r.Use(shmw.JWTAuth([]byte(cfg.Auth.JWTSigningKey)))
+		r.Get("/check", hibpHandler.Check)
+	})
+
 	srv := &http.Server{
 		Addr:         ":" + cfg.Server.Port,
 		Handler:      r,

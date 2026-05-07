@@ -68,6 +68,18 @@ CREATE INDEX idx_vault_items_parent ON vault_items(parent_id) WHERE deleted_at I
 CREATE INDEX idx_vault_items_updated ON vault_items(user_id, updated_at);
 
 -- ─────────────────────────────────────────────────────────────
+-- VAULT BLOBS (temporary; production uses MinIO/S3)
+-- ─────────────────────────────────────────────────────────────
+CREATE TABLE vault_blobs (
+    blob_id     UUID PRIMARY KEY,
+    user_id     UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    data        BYTEA NOT NULL,
+    created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX idx_vault_blobs_user ON vault_blobs(user_id);
+
+-- ─────────────────────────────────────────────────────────────
 -- SHARE LINKS
 -- ─────────────────────────────────────────────────────────────
 CREATE TABLE share_links (

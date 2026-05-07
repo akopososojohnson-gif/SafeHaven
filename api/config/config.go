@@ -13,6 +13,7 @@ type Config struct {
 	Database DatabaseConfig
 	Redis    RedisConfig
 	Auth     AuthConfig
+	Share    ShareConfig
 	HIBP     HIBPConfig
 }
 
@@ -50,6 +51,11 @@ type AuthConfig struct {
 	MaxLoginAttempts    int
 	LockoutDuration     time.Duration
 	ChallengeTTL        time.Duration
+}
+
+// ShareConfig holds share link settings.
+type ShareConfig struct {
+	ServerSecretKey string
 }
 
 // HIBPConfig holds HIBP proxy settings.
@@ -101,6 +107,9 @@ func Load() (*Config, error) {
 			LockoutDuration:    getDuration("LOCKOUT_DURATION", 30*time.Minute),
 			ChallengeTTL:       getDuration("CHALLENGE_TTL", 5*time.Minute),
 		},
+		Share: ShareConfig{
+			ServerSecretKey: getEnv("SHARE_SERVER_SECRET", ""),
+		},
 		HIBP: HIBPConfig{
 			CacheTTL: getDuration("HIBP_CACHE_TTL", time.Hour),
 		},
@@ -108,6 +117,9 @@ func Load() (*Config, error) {
 
 	if cfg.Auth.JWTSigningKey == "" {
 		return nil, fmt.Errorf("JWT_SIGNING_KEY is required")
+	}
+	if cfg.Share.ServerSecretKey == "" {
+		return nil, fmt.Errorf("SHARE_SERVER_SECRET is required")
 	}
 
 	return cfg, nil
