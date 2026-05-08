@@ -10,11 +10,14 @@ import init, {
   create_zkp_proof,
 } from 'safehaven-crypto'
 
+// @ts-ignore
+import wasmUrl from 'safehaven-crypto/safehaven_crypto_bg.wasm?url'
+
 let initialized = false
 
 export async function initCrypto(): Promise<void> {
   if (initialized) return
-  await init()
+  await init(wasmUrl)
   initialized = true
 }
 
