@@ -10,7 +10,7 @@ use curve25519_dalek::constants::RISTRETTO_BASEPOINT_POINT;
 use curve25519_dalek::ristretto::{CompressedRistretto, RistrettoPoint};
 use curve25519_dalek::scalar::Scalar;
 use rand::rngs::OsRng;
-use sha2::{Sha256, Digest};
+use sha2::{Digest, Sha256};
 
 /// A Schnorr ZKP keypair.
 #[derive(Debug, Clone)]
@@ -108,7 +108,11 @@ pub fn prove(keypair: &ZkpKeypair, challenge: &Challenge) -> SchnorrProof {
 ///
 /// # Returns
 /// `Ok(())` if the proof is valid, `Err(ZkpVerificationFailed)` otherwise.
-pub fn verify(public_key_bytes: &[u8; 32], challenge: &Challenge, proof: &SchnorrProof) -> Result<()> {
+pub fn verify(
+    public_key_bytes: &[u8; 32],
+    challenge: &Challenge,
+    proof: &SchnorrProof,
+) -> Result<()> {
     let y = CompressedRistretto::from_slice(public_key_bytes)
         .map_err(|_| CryptoError::InvalidParameter("invalid public key encoding".into()))?
         .decompress()

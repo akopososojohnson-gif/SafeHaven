@@ -143,12 +143,8 @@ async fn main() -> anyhow::Result<()> {
             VaultCommands::Delete { id } => commands::vault::delete(&id).await,
         },
         Commands::Share { command } => match command {
-            ShareCommands::Create { blob, expiry } => {
-                commands::share::create(&blob, expiry).await
-            }
-            ShareCommands::Redeem { share_id } => {
-                commands::share::redeem(&share_id).await
-            }
+            ShareCommands::Create { blob, expiry } => commands::share::create(&blob, expiry).await,
+            ShareCommands::Redeem { share_id } => commands::share::redeem(&share_id).await,
         },
         Commands::Generate { command } => match command {
             GenerateCommands::Password { length, symbols } => {
@@ -163,7 +159,10 @@ async fn main() -> anyhow::Result<()> {
             println!("Email:        {}", me.email);
             println!("ID:           {}", me.id);
             println!("MFA Enabled:  {}", me.mfa_enabled);
-            println!("Storage:      {} / {} bytes", me.storage_used_bytes, me.storage_quota_bytes);
+            println!(
+                "Storage:      {} / {} bytes",
+                me.storage_used_bytes, me.storage_quota_bytes
+            );
             Ok(())
         }
         Commands::Health { server } => {

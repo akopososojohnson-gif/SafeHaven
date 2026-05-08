@@ -41,8 +41,9 @@ pub fn derive_subkeys(master_key: &[u8; 32]) -> Result<SubKeys> {
         .map_err(|e| CryptoError::OperationFailed(format!("HKDF expand kek failed: {}", e)))?;
 
     let mut zkp_scalar = [0u8; 32];
-    hkdf.expand(ZKP_KEY_INFO, &mut zkp_scalar)
-        .map_err(|e| CryptoError::OperationFailed(format!("HKDF expand zkp_scalar failed: {}", e)))?;
+    hkdf.expand(ZKP_KEY_INFO, &mut zkp_scalar).map_err(|e| {
+        CryptoError::OperationFailed(format!("HKDF expand zkp_scalar failed: {}", e))
+    })?;
 
     Ok(SubKeys {
         auth_key,
@@ -55,8 +56,9 @@ pub fn derive_subkeys(master_key: &[u8; 32]) -> Result<SubKeys> {
 pub fn derive_search_key(master_key: &[u8; 32]) -> Result<[u8; 32]> {
     let hkdf = Hkdf::<Sha256>::new(None, master_key);
     let mut key = [0u8; 32];
-    hkdf.expand(SEARCH_KEY_INFO, &mut key)
-        .map_err(|e| CryptoError::OperationFailed(format!("HKDF expand search_key failed: {}", e)))?;
+    hkdf.expand(SEARCH_KEY_INFO, &mut key).map_err(|e| {
+        CryptoError::OperationFailed(format!("HKDF expand search_key failed: {}", e))
+    })?;
     Ok(key)
 }
 

@@ -50,8 +50,8 @@ pub type Result<T> = std::result::Result<T, CryptoError>;
 /// Returns `true` if the slices are equal. Timing does not depend on the
 /// content of the slices (only on their length).
 pub fn constant_time_eq(a: &[u8], b: &[u8]) -> bool {
-    use sha2::Sha256;
     use hmac::{Hmac, Mac};
+    use sha2::Sha256;
 
     // If lengths differ, still do work on dummy data to avoid timing leak.
     let len = a.len().max(b.len());
@@ -65,11 +65,9 @@ pub fn constant_time_eq(a: &[u8], b: &[u8]) -> bool {
 
     // Use HMAC as a constant-time comparison primitive.
     type HmacSha256 = Hmac<Sha256>;
-    let mut mac_a =
-        HmacSha256::new_from_slice(&[0u8; 32]).expect("HMAC key is valid length");
+    let mut mac_a = HmacSha256::new_from_slice(&[0u8; 32]).expect("HMAC key is valid length");
     mac_a.update(a_padded);
-    let mut mac_b =
-        HmacSha256::new_from_slice(&[0u8; 32]).expect("HMAC key is valid length");
+    let mut mac_b = HmacSha256::new_from_slice(&[0u8; 32]).expect("HMAC key is valid length");
     mac_b.update(b_padded);
 
     let result = mac_a.finalize().into_bytes() == mac_b.finalize().into_bytes();

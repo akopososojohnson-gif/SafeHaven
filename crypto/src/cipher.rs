@@ -111,11 +111,7 @@ pub fn encrypt(key: &[u8; KEY_LENGTH], plaintext: &[u8], aad: Option<&[u8]>) -> 
 ///
 /// # Returns
 /// The decrypted plaintext, or `AuthenticationFailed` if the tag is invalid.
-pub fn decrypt(
-    key: &[u8; KEY_LENGTH],
-    ct: &Ciphertext,
-    aad: Option<&[u8]>,
-) -> Result<Vec<u8>> {
+pub fn decrypt(key: &[u8; KEY_LENGTH], ct: &Ciphertext, aad: Option<&[u8]>) -> Result<Vec<u8>> {
     let cipher = Aes256Gcm::new(Key::<Aes256Gcm>::from_slice(key));
     let nonce = Nonce::from_slice(&ct.iv);
 
@@ -135,11 +131,7 @@ pub fn decrypt(
 }
 
 /// Convenience: decrypt from raw bytes `[iv || ciphertext || tag]`.
-pub fn decrypt_bytes(
-    key: &[u8; KEY_LENGTH],
-    data: &[u8],
-    aad: Option<&[u8]>,
-) -> Result<Vec<u8>> {
+pub fn decrypt_bytes(key: &[u8; KEY_LENGTH], data: &[u8], aad: Option<&[u8]>) -> Result<Vec<u8>> {
     let ct = Ciphertext::from_bytes(data)?;
     decrypt(key, &ct, aad)
 }
@@ -186,7 +178,10 @@ mod tests {
         let plaintext = b"secret data";
         let mut ct = encrypt(&key, plaintext, None).unwrap();
         ct.ciphertext[0] ^= 0xFF;
-        assert!(matches!(decrypt(&key, &ct, None), Err(CryptoError::AuthenticationFailed)));
+        assert!(matches!(
+            decrypt(&key, &ct, None),
+            Err(CryptoError::AuthenticationFailed)
+        ));
     }
 
     #[test]

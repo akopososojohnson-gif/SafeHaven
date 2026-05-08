@@ -1,5 +1,5 @@
 use anyhow::{Context, Result};
-use base64::{Engine as _, engine::general_purpose::STANDARD};
+use base64::{engine::general_purpose::STANDARD, Engine as _};
 
 use crate::api::ApiClient;
 use crate::config::Config;
@@ -16,7 +16,10 @@ pub async fn list() -> Result<()> {
         return Ok(());
     }
 
-    println!("{:<36} {:<15} {:<8} {:<20}", "ID", "Type", "Version", "Updated");
+    println!(
+        "{:<36} {:<15} {:<8} {:<20}",
+        "ID", "Type", "Version", "Updated"
+    );
     for item in &sync.items {
         println!(
             "{:<36} {:<15} {:<8} {:<20}",

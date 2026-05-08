@@ -9,7 +9,7 @@
 use crate::{CryptoError, Result};
 
 use std::alloc::{alloc, dealloc, Layout};
-use zeroize::{Zeroize};
+use zeroize::Zeroize;
 
 /// A securely allocated buffer for key material.
 ///
@@ -51,9 +51,7 @@ impl SecureKey {
         }
 
         let layout =
-            Layout::from_size_align(size, 64).map_err(|_e| {
-                CryptoError::MemoryAllocationFailed
-            })?;
+            Layout::from_size_align(size, 64).map_err(|_e| CryptoError::MemoryAllocationFailed)?;
 
         let ptr = unsafe { alloc(layout) };
         if ptr.is_null() {
@@ -87,7 +85,11 @@ impl SecureKey {
             }
         }
 
-        Ok(SecureKey { ptr, len: size, layout })
+        Ok(SecureKey {
+            ptr,
+            len: size,
+            layout,
+        })
     }
 
     /// Returns the length of the buffer in bytes.

@@ -2,8 +2,8 @@
 //!
 //! These functions are exposed to JavaScript/TypeScript via wasm-bindgen.
 
-use wasm_bindgen::prelude::*;
 use js_sys::Uint8Array;
+use wasm_bindgen::prelude::*;
 
 /// Derive a master key from password and salt using Argon2id with default params.
 ///
@@ -37,14 +37,24 @@ pub fn derive_subkeys(master_key: &[u8]) -> Result<JsValue, JsValue> {
     if master_key.len() != 32 {
         return Err(JsValue::from_str("master_key must be 32 bytes"));
     }
-    let mk: [u8; 32] = master_key.try_into().map_err(|_| "master_key must be 32 bytes")?;
-    let keys = crate::keys::derive_subkeys(&mk)
-        .map_err(|e| JsValue::from_str(&format!("{:?}", e)))?;
+    let mk: [u8; 32] = master_key
+        .try_into()
+        .map_err(|_| "master_key must be 32 bytes")?;
+    let keys =
+        crate::keys::derive_subkeys(&mk).map_err(|e| JsValue::from_str(&format!("{:?}", e)))?;
 
     let obj = js_sys::Object::new();
-    js_sys::Reflect::set(&obj, &"auth_key".into(), &Uint8Array::from(&keys.auth_key[..]))?;
+    js_sys::Reflect::set(
+        &obj,
+        &"auth_key".into(),
+        &Uint8Array::from(&keys.auth_key[..]),
+    )?;
     js_sys::Reflect::set(&obj, &"kek".into(), &Uint8Array::from(&keys.kek[..]))?;
-    js_sys::Reflect::set(&obj, &"zkp_scalar".into(), &Uint8Array::from(&keys.zkp_scalar[..]))?;
+    js_sys::Reflect::set(
+        &obj,
+        &"zkp_scalar".into(),
+        &Uint8Array::from(&keys.zkp_scalar[..]),
+    )?;
 
     Ok(obj.into())
 }
