@@ -117,7 +117,10 @@ class ApiClient {
     if (includeDeleted) params.set('include_deleted', 'true')
     const res = await this.fetch(`/vault/sync?${params.toString()}`)
     if (!res.ok) throw new Error(await res.text())
-    return res.json()
+    const data = await res.json()
+    if (!data.items) data.items = []
+    if (!data.deleted_ids) data.deleted_ids = []
+    return data
   }
 
   async createVaultItem(req: VaultItemRequest): Promise<VaultItemResponse> {

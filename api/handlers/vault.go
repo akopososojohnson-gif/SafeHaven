@@ -82,8 +82,8 @@ func (h *VaultHandler) Sync(w http.ResponseWriter, r *http.Request) {
 	includeDeleted := r.URL.Query().Get("include_deleted") == "true"
 
 	ctx := r.Context()
-	var items []VaultItemSync
-	var deletedIDs []uuid.UUID
+	items := make([]VaultItemSync, 0)
+	deletedIDs := make([]uuid.UUID, 0)
 
 	query := `
 		SELECT id, blob_id, item_type, version, updated_at, deleted_at IS NOT NULL, name_hash, parent_id, tags, favorite
