@@ -6,6 +6,8 @@ import init, {
   random_bytes,
   sha256,
   hmac_sha256,
+  generate_zkp_keypair,
+  create_zkp_proof,
 } from 'safehaven-crypto'
 
 let initialized = false
@@ -24,6 +26,8 @@ export {
   random_bytes,
   sha256,
   hmac_sha256,
+  generate_zkp_keypair,
+  create_zkp_proof,
 }
 
 /** Convert Uint8Array to base64 string. */

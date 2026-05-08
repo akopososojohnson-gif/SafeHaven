@@ -125,3 +125,62 @@ pub fn hmac_sha256(key: &[u8], data: &[u8]) -> Uint8Array {
     let mac = crate::hash::hmac_sha256(key, data);
     Uint8Array::from(&mac[..])
 }
+
+/// Generate a ZKP keypair from a 32-byte seed (the `zkp_scalar` from HKDF).
+///
+/// # Returns
+/// Object with `public_key` (Uint8Array, 32 bytes) and `private_key` (Uint8Array, 32 bytes)
+#[wasm_bindgen]
+pub fn generate_zkp_keypair(seed: &[u8]) -> Result<JsValue, JsValue> {
+    if seed.len() != 32 {
+        return Err(JsValue::from_str("seed must be 32 bytes"));
+    }
+    let seed_arr: [u8; 32] = seed.try_into().map_err(|_| "seed must be 32 bytes")?;
+    let kp = crate::zkp::ZkpKeypair::from_seed(&seed_arr);
+
+    let obj = js_sys::Object::new();
+    js_sys::Reflect::set(
+        &obj,
+        &"public_key".into(),
+        &Uint8Array::from(&kp.public_key_bytes()[..]),
+    )?;
+    js_sys::Reflect::set(
+        &obj,
+        &"private_key".into(),
+        &Uint8Array::from(&kp.private.to_bytes()[..]),
+    )?;
+
+    Ok(obj.into())
+}
+
+/// Create a Schnorr ZKP proof for the given challenge.
+///
+/// # Arguments
+/// * `private_key` - 32-byte private scalar (from generate_zkp_keypair)
+/// * `challenge` - 32-byte challenge scalar (from server)
+///
+/// # Returns
+/// Object with `t` (Uint8Array, 32 bytes) and `s` (Uint8Array, 32 bytes)
+#[wasm_bindgen]
+pub fn create_zkp_proof(private_key: &[u8], challenge: &[u8]) -> Result<JsValue, JsValue> {
+    if private_key.len() != 32 {
+        return Err(JsValue::from_str("private_key must be 32 bytes"));
+    }
+    if challenge.len() != 32 {
+        return Err(JsValue::from_str("challenge must be 32 bytes"));
+    }
+    let pk_arr: [u8; 32] = private_key.try_into().map_err(|_| "private_key must be 32 bytes")?;
+    let ch_arr: [u8; 32] = challenge.try_into().map_err(|_| "challenge must be 32 bytes")?;
+
+    let scalar = curve25519_dalek::scalar::Scalar::from_bytes_mod_order(pk_arr);
+    let public = scalar * curve25519_dalek::constants::RISTRETTO_BASEPOINT_POINT;
+    let keypair = crate::zkp::ZkpKeypair { private: scalar, public };
+    let challenge = crate::zkp::Challenge::from_bytes(&ch_arr);
+    let proof = crate::zkp::prove(&keypair, &challenge);
+
+    let obj = js_sys::Object::new();
+    js_sys::Reflect::set(&obj, &"t".into(), &Uint8Array::from(&proof.t[..]))?;
+    js_sys::Reflect::set(&obj, &"s".into(), &Uint8Array::from(&proof.s[..]))?;
+
+    Ok(obj.into())
+}

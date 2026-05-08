@@ -74,12 +74,12 @@ func main() {
 	shareHandler := &handlers.ShareHandler{DB: database, Config: cfg}
 	r.Route("/api/v1/shares", func(r chi.Router) {
 		r.Get("/{share_id}", shareHandler.RedeemShare)
-	})
-	r.Route("/api/v1/shares", func(r chi.Router) {
-		r.Use(shmw.JWTAuth([]byte(cfg.Auth.JWTSigningKey)))
-		r.Post("/", shareHandler.CreateShare)
-		r.Delete("/{share_id}", shareHandler.RevokeShare)
-		r.Get("/", shareHandler.ListShares)
+		r.Group(func(r chi.Router) {
+			r.Use(shmw.JWTAuth([]byte(cfg.Auth.JWTSigningKey)))
+			r.Post("/", shareHandler.CreateShare)
+			r.Delete("/{share_id}", shareHandler.RevokeShare)
+			r.Get("/", shareHandler.ListShares)
+		})
 	})
 
 	// HIBP routes (authenticated)
