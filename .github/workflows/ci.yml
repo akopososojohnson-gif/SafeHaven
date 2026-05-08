@@ -163,5 +163,8 @@ jobs:
             crypto
             cli
 
+      - name: Install system dependencies
+        run: sudo apt-get update && sudo apt-get install -y libdbus-1-dev pkg-config
+
       - name: Build CLI (release)
         run: cargo build --release
